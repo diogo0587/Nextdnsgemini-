@@ -4,7 +4,7 @@
   "description": "A comprehensive web application to manage NextDNS configurations, enhanced with Gemini AI assistance for explanations and recommendations.",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild --bundle index.tsx --outfile=dist/bundle.js --loader:.tsx=tsx --minify --sourcemap --platform=browser --define:process.env.NODE_ENV=\\\"production\\\""
+    "build": "esbuild --bundle index.tsx --outfile=dist/bundle.js --loader:.tsx=tsx --minify --sourcemap --platform=browser --define:process.env.NODE_ENV=\\\"production\\\" --define:process.env.API_KEY=\\\"${process.env.API_KEY || ''}\\\""
   },
   "keywords": [],
   "author": "",
