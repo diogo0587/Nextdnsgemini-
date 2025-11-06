@@ -10,6 +10,7 @@ export enum NextDNSSettingsCategory {
   SETTINGS = 'Settings',
   LOGS_ANALYTICS = 'Logs & Analytics', // New category
   GEMINI_ASSISTANT = 'Gemini Assistant',
+  API_KEY_SETTINGS = 'API Key Settings', // New category for API Key
 }
 
 export interface NavItem {

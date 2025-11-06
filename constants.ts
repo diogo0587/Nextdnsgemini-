@@ -13,15 +13,16 @@ const createMockIcon = (name: string) => ({
 });
 
 export const NAV_ITEMS: NavItem[] = [
-  { id: NextDNSSettingsCategory.DASHBOARD, label: 'Dashboard', path: '#dashboard', icon: createMockIcon('tachometer-alt') },
-  { id: NextDNSSettingsCategory.SECURITY, label: 'Security', path: '#security', icon: createMockIcon('shield-alt') },
-  { id: NextDNSSettingsCategory.PRIVACY, label: 'Privacy', path: '#privacy', icon: createMockIcon('user-secret') },
-  { id: NextDNSSettingsCategory.PARENTAL_CONTROLS, label: 'Parental Controls', path: '#parental-controls', icon: createMockIcon('child') },
-  { id: NextDNSSettingsCategory.LISTS, label: 'Denylist & Allowlist', path: '#lists', icon: createMockIcon('list-alt') },
-  { id: NextDNSSettingsCategory.REWRITES, label: 'Rewrites', path: '#rewrites', icon: createMockIcon('arrows-rotate') },
-  { id: NextDNSSettingsCategory.SETTINGS, label: 'General Settings', path: '#settings', icon: createMockIcon('cogs') },
-  { id: NextDNSSettingsCategory.LOGS_ANALYTICS, label: 'Logs & Analytics', path: '#logs-analytics', icon: createMockIcon('chart-bar') }, // New item
-  { id: NextDNSSettingsCategory.GEMINI_ASSISTANT, label: 'Gemini Assistant', path: '#gemini-assistant', icon: createMockIcon('gem') },
+  { id: NextDNSSettingsCategory.DASHBOARD, label: 'Dashboard', path: '/', icon: createMockIcon('tachometer-alt') },
+  { id: NextDNSSettingsCategory.SECURITY, label: 'Security', path: '/security', icon: createMockIcon('shield-alt') },
+  { id: NextDNSSettingsCategory.PRIVACY, label: 'Privacy', path: '/privacy', icon: createMockIcon('user-secret') },
+  { id: NextDNSSettingsCategory.PARENTAL_CONTROLS, label: 'Parental Controls', path: '/parental-controls', icon: createMockIcon('child') },
+  { id: NextDNSSettingsCategory.LISTS, label: 'Denylist & Allowlist', path: '/lists', icon: createMockIcon('list-alt') },
+  { id: NextDNSSettingsCategory.REWRITES, label: 'Rewrites', path: '/rewrites', icon: createMockIcon('arrows-rotate') },
+  { id: NextDNSSettingsCategory.SETTINGS, label: 'General Settings', path: '/settings', icon: createMockIcon('cogs') },
+  { id: NextDNSSettingsCategory.LOGS_ANALYTICS, label: 'Logs & Analytics', path: '/logs-analytics', icon: createMockIcon('chart-bar') }, // New item
+  { id: NextDNSSettingsCategory.GEMINI_ASSISTANT, label: 'Gemini Assistant', path: '/gemini-assistant', icon: createMockIcon('gem') },
+  { id: NextDNSSettingsCategory.API_KEY_SETTINGS, label: 'API Key Settings', path: '/api-key', icon: createMockIcon('key') }, // New item
 ];
 
 export const DEFAULT_NEXTDNS_SETTINGS: NextDNSSettings = {

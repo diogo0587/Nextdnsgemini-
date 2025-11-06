@@ -4,6 +4,7 @@ import { DNSQueryLog, NotificationType } from '../types';
 import { logService } from './logService'; // Import the new log service
 
 const LOCAL_STORAGE_KEY = 'nextdns_settings';
+const NEXTDNS_API_KEY_LOCAL_STORAGE_KEY = 'nextdns_api_key'; // New constant for NextDNS API Key
 
 // Utility to deep merge objects
 function deepMerge<T>(target: T, source: Partial<T>): T {
@@ -29,15 +30,18 @@ type AddNotificationFn = (message: string, type?: NotificationType) => void;
 class NextDNSService {
   private settings: NextDNSSettings;
   private addNotification: AddNotificationFn = () => {}; // Default no-op
+  private nextDnsApiKey: string | null; // New: Cache for NextDNS API Key
 
   constructor() {
     this.settings = this.loadSettings();
+    this.nextDnsApiKey = this.loadNextDnsApiKey(); // Load NextDNS API key on init
   }
 
   public setNotificationHandler(handler: AddNotificationFn): void {
     this.addNotification = handler;
   }
 
+  // --- NextDNS Settings Management (Local Storage) ---
   private loadSettings(): NextDNSSettings {
     try {
       const storedSettings = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -162,6 +166,41 @@ class NextDNSService {
       }
     }
     this.saveSettings();
+  }
+
+  // --- NextDNS API Key Management (Local Storage) ---
+  private loadNextDnsApiKey(): string | null {
+    try {
+      return localStorage.getItem(NEXTDNS_API_KEY_LOCAL_STORAGE_KEY);
+    } catch (error) {
+      console.error('Failed to load NextDNS API key from local storage:', error);
+      return null;
+    }
+  }
+
+  public getNextDnsApiKeyFromStorage(): string | null {
+    if (this.nextDnsApiKey) return this.nextDnsApiKey; // Return cached key if available
+    const key = this.loadNextDnsApiKey();
+    this.nextDnsApiKey = key; // Cache it
+    return key;
+  }
+
+  public setNextDnsApiKey(key: string): void {
+    try {
+      localStorage.setItem(NEXTDNS_API_KEY_LOCAL_STORAGE_KEY, key);
+      this.nextDnsApiKey = key; // Update cached key
+    } catch (error) {
+      console.error('Failed to save NextDNS API key to local storage:', error);
+    }
+  }
+
+  public clearNextDnsApiKey(): void {
+    try {
+      localStorage.removeItem(NEXTDNS_API_KEY_LOCAL_STORAGE_KEY);
+      this.nextDnsApiKey = null; // Clear cached key
+    } catch (error) {
+      console.error('Failed to clear NextDNS API key from local storage:', error);
+    }
   }
 }
 

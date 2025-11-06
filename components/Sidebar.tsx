@@ -18,7 +18,7 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems, activePath, onNavigate }) =
           {navItems.map((item) => (
             <li key={item.id} className="mb-2">
               <a
-                href={item.path}
+                href={item.path === '/' ? '#/' : `#${item.path}`} // Adjust href for HashRouter, '/' maps to '#/'
                 onClick={(e) => {
                   e.preventDefault();
                   onNavigate(item.path);

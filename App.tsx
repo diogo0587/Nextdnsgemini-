@@ -12,6 +12,7 @@ import RewritesPage from './pages/RewritesPage';
 import SettingsPage from './pages/SettingsPage';
 import LogsAnalyticsPage from './pages/LogsAnalyticsPage';
 import GeminiAssistantPage from './pages/GeminiAssistantPage';
+import ApiKeyPage from './pages/ApiKeyPage'; // Import the new API Key page
 import { NAV_ITEMS } from './constants';
 import { NavItem } from './types';
 import { nextDNSService } from './services/nextdnsService';
@@ -24,12 +25,14 @@ const PageWrapper: React.FC<{ children: React.ReactNode, navItems: NavItem[] }> 
   const location = ReactRouter.useLocation();
   // Fix: Use ReactRouter.useNavigate() instead of useNavigate()
   const navigate = ReactRouter.useNavigate();
-  const [activePath, setActivePath] = useState(location.hash || '#dashboard');
+  // Initialize activePath with the pathname from HashRouter, defaulting to '/'
+  const [activePath, setActivePath] = useState(location.pathname || '/');
   const { addNotification } = useNotification();
 
   useEffect(() => {
-    setActivePath(location.hash || '#dashboard');
-  }, [location.hash]);
+    // Update activePath when the location.pathname changes (after the hash)
+    setActivePath(location.pathname || '/');
+  }, [location.pathname]);
 
   // Set the notification handler for the service
   useEffect(() => {
@@ -82,6 +85,7 @@ const App: React.FC = () => {
             <ReactRouter.Route path="/settings" element={<SettingsPage />} />
             <ReactRouter.Route path="/logs-analytics" element={<LogsAnalyticsPage />} />
             <ReactRouter.Route path="/gemini-assistant" element={<GeminiAssistantPage />} />
+            <ReactRouter.Route path="/api-key" element={<ApiKeyPage />} /> {/* New API Key Route */}
             {/* Fallback for unknown routes */}
             <ReactRouter.Route path="*" element={<DashboardPage />} />
           </ReactRouter.Routes>

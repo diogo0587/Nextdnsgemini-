@@ -11,6 +11,7 @@ const GeminiAssistantPage: React.FC = () => {
   const [currentMessage, setCurrentMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [isApiKeyConfigured, setIsApiKeyConfigured] = useState<boolean>(false); // New state for API Key
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -20,12 +21,32 @@ const GeminiAssistantPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    // Check API Key status on mount
+    const checkApiKey = () => {
+      const key = geminiService.getApiKeyFromStorage();
+      setIsApiKeyConfigured(!!key);
+      if (!key) {
+        setApiError("Gemini API Key is not configured. Please go to API Key Settings to set it.");
+      } else {
+        setApiError(null);
+      }
+    };
+    checkApiKey();
+
+    // Re-check if API key might change (e.g., user saves on another page)
+    const handleStorageChange = () => checkApiKey();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []); // Run once on mount, then listen to storage events
+
+
+  useEffect(() => {
     scrollToBottom();
   }, [chatHistory, scrollToBottom]);
 
   const handleSendMessage = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!currentMessage.trim() || isLoading) return;
+    if (!currentMessage.trim() || isLoading || !isApiKeyConfigured) return;
 
     const userMessage: GeminiMessage = { role: 'user', content: currentMessage };
     setChatHistory((prev) => [...prev, userMessage]);
@@ -68,11 +89,17 @@ const GeminiAssistantPage: React.FC = () => {
       );
     } catch (err) {
       console.error('Error during Gemini interaction:', err);
-      setApiError('An unexpected error occurred while contacting Gemini.');
+      // Specific error handling for API Key not configured
+      if ((err as Error).message.includes("API Key is not configured")) {
+        setApiError((err as Error).message);
+        setIsApiKeyConfigured(false); // Update state to reflect missing key
+      } else {
+        setApiError('An unexpected error occurred while contacting Gemini.');
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [currentMessage, isLoading, chatHistory]);
+  }, [currentMessage, isLoading, isApiKeyConfigured, chatHistory]);
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
@@ -87,7 +114,7 @@ const GeminiAssistantPage: React.FC = () => {
         className="flex-1 overflow-y-auto p-6 space-y-4"
         style={{ scrollBehavior: 'smooth' }}
       >
-        {chatHistory.length === 0 && (
+        {chatHistory.length === 0 && !apiError && (
           <div className="text-center text-gray-500 py-10">
             Start a conversation! Ask me about NextDNS.
           </div>
@@ -123,6 +150,11 @@ const GeminiAssistantPage: React.FC = () => {
         {apiError && (
           <div className="p-4 bg-red-100 text-red-700 border border-red-400 rounded-md text-sm">
             <strong>Error:</strong> {apiError}
+            {!isApiKeyConfigured && (
+              <p className="mt-2">
+                Please go to <a href="#/api-key" className="underline text-blue-700 hover:text-blue-900">API Key Settings</a> to configure your Gemini API Key.
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -136,9 +168,9 @@ const GeminiAssistantPage: React.FC = () => {
             value={currentMessage}
             onChange={(e) => setCurrentMessage(e.target.value)}
             className="flex-1"
-            disabled={isLoading}
+            disabled={isLoading || !isApiKeyConfigured} // Disable if no API key
           />
-          <Button type="submit" disabled={!currentMessage.trim() || isLoading}>
+          <Button type="submit" disabled={!currentMessage.trim() || isLoading || !isApiKeyConfigured}>
             {isLoading ? 'Sending...' : 'Send'}
           </Button>
         </div>
