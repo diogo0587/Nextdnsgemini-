@@ -1,16 +1,27 @@
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core'; // Assuming Font Awesome is used for icons
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+
+export interface InvitationDetails {
+  brideName: string;
+  groomName?: string; // Optional
+  date: string;
+  time: string;
+  location: string;
+  rsvpInfo: string;
+  registryInfo?: string; // Optional
+  theme: 'Floral & Romantic' | 'Modern & Minimalist' | 'Rustic Charm' | 'Vintage Elegance';
+}
 
 export enum NextDNSSettingsCategory {
-  DASHBOARD = 'Dashboard',
-  SECURITY = 'Security',
-  PRIVACY = 'Privacy',
-  PARENTAL_CONTROLS = 'Parental Controls',
-  LISTS = 'Lists',
-  REWRITES = 'Rewrites',
-  SETTINGS = 'Settings',
-  LOGS_ANALYTICS = 'Logs & Analytics', // New category
-  GEMINI_ASSISTANT = 'Gemini Assistant',
-  API_KEY_SETTINGS = 'API Key Settings', // New category for API Key
+  DASHBOARD = 'DASHBOARD',
+  SECURITY = 'SECURITY',
+  PRIVACY = 'PRIVACY',
+  PARENTAL_CONTROLS = 'PARENTAL_CONTROLS',
+  LISTS = 'LISTS',
+  REWRITES = 'REWRITES',
+  SETTINGS = 'SETTINGS',
+  LOGS_ANALYTICS = 'LOGS_ANALYTICS',
+  GEMINI_ASSISTANT = 'GEMINI_ASSISTANT',
+  API_KEY_SETTINGS = 'API_KEY_SETTINGS',
 }
 
 export interface NavItem {
@@ -38,7 +49,7 @@ export interface NextDNSSettings {
     blockCircumvention: boolean;
   };
   parentalControls: {
-    blockCategories: string[]; // e.g., ['Social Media', 'Gambling']
+    blockCategories: string[];
     safeSearch: boolean;
     youtubeRestricted: boolean;
   };
@@ -47,7 +58,7 @@ export interface NextDNSSettings {
     allowlist: string[];
   };
   rewrites: {
-    [domain: string]: string; // { 'example.com': '192.168.1.1' }
+    [domain: string]: string;
   };
   general: {
     loggingEnabled: boolean;
@@ -57,17 +68,25 @@ export interface NextDNSSettings {
   };
 }
 
-export interface DNSQueryLog {
+export interface FeatureCardProps {
   id: string;
-  timestamp: string; // ISO 8601 string
-  domain: string;
-  device: string; // e.g., 'Home Network', 'Mobile', 'Work PC'
-  status: 'allowed' | 'blocked';
-  profile: string; // e.g., 'Default Profile', 'Kids Profile'
-  blockReason?: string; // e.g., 'Malware', 'Ads', 'Pornography', 'Denylist'
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (id: string, checked: boolean) => void;
 }
 
-export type NotificationType = 'info' | 'success' | 'warning' | 'error';
+export interface DNSQueryLog {
+  id: string;
+  timestamp: string; // ISO string
+  domain: string;
+  device: string;
+  status: 'allowed' | 'blocked';
+  profile: string;
+  blockReason?: string;
+}
+
+export type NotificationType = 'success' | 'warning' | 'error' | 'info';
 
 export interface NotificationItem {
   id: string;
@@ -80,16 +99,4 @@ export interface GeminiMessage {
   content: string;
 }
 
-export interface FeatureToggleProps {
-  id: string;
-  label: string;
-  description: string;
-  checked: boolean;
-  onChange: (id: string, value: boolean) => void;
-}
-
-export interface FeatureCardProps extends FeatureToggleProps {
-  // Can extend for other input types if needed, for now just toggle
-}
-
-export type Theme = 'light' | 'dark'; // New type for theme
+export type Theme = 'light' | 'dark';

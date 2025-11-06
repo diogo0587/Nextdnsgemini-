@@ -71,7 +71,8 @@ class NextDNSService {
     this.settings.security[key] = value;
     this.saveSettings();
     const statusText = value ? 'enabled' : 'disabled';
-    this.addNotification(`Security feature "${key}" ${statusText}.`, 'info');
+    // FIX: Explicitly convert 'key' to a string to prevent runtime errors with template literals.
+    this.addNotification(`Security feature "${String(key)}" ${statusText}.`, 'info');
 
     if (value && (key === 'malwareProtection' || key === 'phishingProtection')) {
       this.addNotification(`Critical threat protection active: ${key} enabled.`, 'success');
@@ -83,7 +84,8 @@ class NextDNSService {
     this.settings.privacy[key] = value;
     this.saveSettings();
     const statusText = value ? 'enabled' : 'disabled';
-    this.addNotification(`Privacy feature "${key}" ${statusText}.`, 'info');
+    // FIX: Explicitly convert 'key' to a string to prevent runtime errors with template literals.
+    this.addNotification(`Privacy feature "${String(key)}" ${statusText}.`, 'info');
     // In a real app, this would log actual blocked queries from NextDNS API
   }
 

@@ -43,7 +43,8 @@ const PrivacyPage: React.FC = () => {
     try {
       await nextDNSService.updatePrivacySetting(key, value);
     } catch (err) {
-      setError(`Failed to update ${key} setting.`);
+      // FIX: Explicitly convert 'key' to a string to prevent runtime errors with template literals.
+      setError(`Failed to update ${String(key)} setting.`);
       console.error(err);
       // Revert UI on error
       setSettings((prevSettings) => ({

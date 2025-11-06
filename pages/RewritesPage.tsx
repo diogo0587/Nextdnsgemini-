@@ -53,7 +53,7 @@ const RewritesPage: React.FC = () => {
     } else {
       alert('Please enter a valid domain and IP address.');
     }
-  }, [newRewriteDomain, newRewriteIp, settings]);
+  }, [newRewriteDomain, newRewriteIp]);
 
   const handleRemoveRewriteRule = useCallback(async (domain: string) => {
     try {
@@ -125,7 +125,7 @@ const RewritesPage: React.FC = () => {
             Object.entries(settings).map(([domain, ip]) => (
               <li key={domain} className="flex items-center justify-between text-gray-800 bg-gray-50 p-2 rounded-md dark:text-gray-100 dark:bg-gray-700">
                 <span>
-                  <strong>{domain}</strong> &rarr; {ip}
+                  <strong>{domain}</strong> &rarr; {String(ip)}
                 </span>
                 <Button variant="danger" onClick={() => handleRemoveRewriteRule(domain)} className="text-sm py-1 px-2">
                   Remove
