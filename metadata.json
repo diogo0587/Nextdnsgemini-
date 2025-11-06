@@ -1,0 +1,5 @@
+{
+  "name": "NextDNS Manager",
+  "description": "A comprehensive web application to manage NextDNS configurations, enhanced with Gemini AI assistance for explanations and recommendations.",
+  "requestFramePermissions": []
+}
