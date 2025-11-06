@@ -1,51 +1,26 @@
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { GeminiMessage } from '../types';
 
-const GEMINI_API_KEY_LOCAL_STORAGE_KEY = 'gemini_api_key';
-
 class GeminiService {
-  private apiKey: string | null;
+  // A chave de API Gemini DEVE ser obtida exclusivamente de process.env.API_KEY,
+  // conforme as diretrizes do Google GenAI.
+  // Gerenciamento de chave via localStorage para Gemini API foi removido.
 
   constructor() {
-    this.apiKey = this.getApiKeyFromStorage();
+    // Não é necessário carregar a chave de API Gemini do localStorage aqui,
+    // pois ela será acessada via process.env.API_KEY no momento da inicialização do modelo.
   }
 
-  public getApiKeyFromStorage(): string | null {
-    if (this.apiKey) return this.apiKey; // Return cached key if available
-    try {
-      const storedKey = localStorage.getItem(GEMINI_API_KEY_LOCAL_STORAGE_KEY);
-      this.apiKey = storedKey; // Cache the key
-      return storedKey;
-    } catch (error) {
-      console.error('Failed to retrieve Gemini API key from local storage:', error);
-      return null;
-    }
-  }
-
-  public setApiKey(key: string): void {
-    try {
-      localStorage.setItem(GEMINI_API_KEY_LOCAL_STORAGE_KEY, key);
-      this.apiKey = key; // Update cached key
-    } catch (error) {
-      console.error('Failed to save Gemini API key to local storage:', error);
-    }
-  }
-
-  public clearApiKey(): void {
-    try {
-      localStorage.removeItem(GEMINI_API_KEY_LOCAL_STORAGE_KEY);
-      this.apiKey = null; // Clear cached key
-    } catch (error) {
-      console.error('Failed to clear Gemini API key from local storage:', error);
-    }
-  }
+  // Métodos relacionados ao armazenamento local da chave de API Gemini foram removidos
+  // para cumprir as diretrizes.
 
   private async getGenerativeModel() {
-    const key = this.getApiKeyFromStorage();
-    if (!key) {
-      throw new Error("Gemini API Key is not configured. Please go to API Key Settings to set it.");
+    // A API key deve ser acessada via process.env.API_KEY, assumindo que esteja configurada.
+    const apiKey = process.env.API_KEY; 
+    if (!apiKey) {
+      throw new Error("Gemini API Key is not configured. It must be provided via environment variable process.env.API_KEY.");
     }
-    return new GoogleGenAI({ apiKey: key });
+    return new GoogleGenAI({ apiKey: apiKey });
   }
 
   public async getNextDNSExplanation(
@@ -57,15 +32,12 @@ class GeminiService {
     try {
       const ai = await this.getGenerativeModel();
 
-      // The last message in the array is the current user's prompt.
-      // All preceding messages form the conversation history.
       const currentPromptMessage = messages[messages.length - 1];
       const conversationHistory = messages.slice(0, messages.length - 1).map(msg => ({
-        role: msg.role, // 'user' or 'model' roles are already correct
+        role: msg.role,
         parts: [{ text: msg.content }],
       }));
 
-      // Initialize the chat session with the conversation history
       const chat = ai.chats.create({
         model: 'gemini-2.5-flash',
         history: conversationHistory,
@@ -74,7 +46,6 @@ class GeminiService {
         },
       });
 
-      // Send only the current user message to the chat session
       const responseStream = await chat.sendMessageStream({
         message: currentPromptMessage.content,
       });
@@ -84,10 +55,10 @@ class GeminiService {
       }
     } catch (error: any) {
       console.error('Gemini API Error:', error);
-      if (error.message.includes("API Key is not configured")) {
-        onError(error.message); // Pass the specific message for API key
+      if (error.message.includes("API Key is not configured") || error.message.includes("api_key")) {
+        onError("Gemini API Key is not configured or invalid. Please ensure process.env.API_KEY is correctly set for the environment.");
       } else if (error.message.includes("Requested entity was not found.")) {
-        onError("API key error: The selected API key might be invalid or not properly configured for this model. Please check your API Key Settings.");
+        onError("API key error: The selected API key might be invalid or not properly configured for this model. Please check your environment configuration.");
       } else {
         onError(`Failed to get response from Gemini: ${error.message || 'Unknown error'}`);
       }

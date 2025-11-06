@@ -4,6 +4,7 @@ import { DNSQueryLog } from '../types';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import { useNotification } from '../contexts/NotificationContext';
+import { useTheme } from '../contexts/ThemeContext'; // Import useTheme hook
 
 const LogsAnalyticsPage: React.FC = () => {
   const [allLogs, setAllLogs] = useState<DNSQueryLog[]>([]); // Store all fetched logs
@@ -12,6 +13,7 @@ const LogsAnalyticsPage: React.FC = () => {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const { addNotification } = useNotification();
+  const { theme } = useTheme(); // Use theme context
 
   // Set the notification handler for logService
   useEffect(() => {
@@ -167,9 +169,9 @@ const LogsAnalyticsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full text-gray-700">
+      <div className="flex justify-center items-center h-full text-gray-700 dark:text-gray-300">
         <div className="flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
           <span>Loading Logs & Analytics...</span>
         </div>
       </div>
@@ -178,7 +180,7 @@ const LogsAnalyticsPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="p-6 text-red-600 text-center">
+      <div className="p-6 text-red-600 text-center dark:text-red-400">
         <p>{error}</p>
         <Button onClick={fetchLogs} className="mt-4">Try Again</Button>
       </div>
@@ -187,11 +189,11 @@ const LogsAnalyticsPage: React.FC = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">DNS Query Logs & Analytics</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 dark:text-gray-100">DNS Query Logs & Analytics</h2>
 
       {/* Date Range Filter */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Filter Logs by Date</h3>
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8 dark:bg-gray-800">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Filter Logs by Date</h3>
         <div className="flex flex-col sm:flex-row gap-4 items-end">
           <div className="flex-1 w-full">
             <Input
@@ -219,8 +221,8 @@ const LogsAnalyticsPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Actions */}
-        <div className="bg-white p-6 rounded-lg shadow-md col-span-1">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">Actions</h3>
+        <div className="bg-white p-6 rounded-lg shadow-md col-span-1 dark:bg-gray-800">
+          <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Actions</h3>
           <Button onClick={handleExportLogs} className="w-full mb-3" disabled={loading || filteredLogs.length === 0}>
             Export Filtered Logs to CSV
           </Button>
@@ -230,19 +232,19 @@ const LogsAnalyticsPage: React.FC = () => {
         </div>
 
         {/* Analytics Summary - Top Domains and Block Reasons */}
-        <div className="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-2">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">Analytics Summary (Filtered: {filteredLogs.length} queries)</h3>
+        <div className="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 dark:bg-gray-800">
+          <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Analytics Summary (Filtered: {filteredLogs.length} queries)</h3>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <div>
-              <p className="font-medium text-gray-700 mb-3">Top 5 Most Frequent Domains:</p>
+              <p className="font-medium text-gray-700 mb-3 dark:text-gray-200">Top 5 Most Frequent Domains:</p>
               {sortedDomains.length > 0 ? (
                 <ul className="list-none text-gray-600 space-y-3">
                   {sortedDomains.map(([domain, count]) => (
                     <li key={domain} className="flex items-center">
-                      <span className="w-2/5 md:w-1/3 truncate text-sm font-medium pr-2">{domain}:</span>
-                      <div className="flex-1 bg-gray-200 rounded-full h-5 relative">
+                      <span className="w-2/5 md:w-1/3 truncate text-sm font-medium pr-2 text-gray-700 dark:text-gray-200">{domain}:</span>
+                      <div className="flex-1 bg-gray-200 rounded-full h-5 relative dark:bg-gray-700">
                         <div
-                          className="bg-blue-600 h-full rounded-full flex items-center justify-end pr-2"
+                          className="bg-blue-600 h-full rounded-full flex items-center justify-end pr-2 dark:bg-blue-700"
                           style={{ width: `${(count / maxGeneralQueriesForBars) * 100}%` }}
                           role="progressbar"
                           aria-valuenow={count}
@@ -257,19 +259,19 @@ const LogsAnalyticsPage: React.FC = () => {
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-500 text-sm">No data available for top domains.</p>
+                <p className="text-gray-500 text-sm dark:text-gray-400">No data available for top domains.</p>
               )}
             </div>
             <div>
-              <p className="font-medium text-gray-700 mb-3">Top 3 Most Common Block Reasons:</p>
+              <p className="font-medium text-gray-700 mb-3 dark:text-gray-200">Top 3 Most Common Block Reasons:</p>
               {sortedBlockReasons.length > 0 ? (
                 <ul className="list-none text-gray-600 space-y-3">
                   {sortedBlockReasons.map(([reason, count]) => (
                     <li key={reason} className="flex items-center">
-                      <span className="w-2/5 md:w-1/3 truncate text-sm font-medium pr-2">{reason}:</span>
-                      <div className="flex-1 bg-gray-200 rounded-full h-5 relative">
+                      <span className="w-2/5 md:w-1/3 truncate text-sm font-medium pr-2 text-gray-700 dark:text-gray-200">{reason}:</span>
+                      <div className="flex-1 bg-gray-200 rounded-full h-5 relative dark:bg-gray-700">
                         <div
-                          className="bg-red-600 h-full rounded-full flex items-center justify-end pr-2"
+                          className="bg-red-600 h-full rounded-full flex items-center justify-end pr-2 dark:bg-red-700"
                           style={{ width: `${(count / maxGeneralQueriesForBars) * 100}%` }}
                           role="progressbar"
                           aria-valuenow={count}
@@ -284,7 +286,7 @@ const LogsAnalyticsPage: React.FC = () => {
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-500 text-sm">No blocked queries yet for block reasons.</p>
+                <p className="text-gray-500 text-sm dark:text-gray-400">No blocked queries yet for block reasons.</p>
               )}
             </div>
           </div>
@@ -292,32 +294,32 @@ const LogsAnalyticsPage: React.FC = () => {
       </div>
 
       {/* Daily Query Trends Chart */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Daily Query Trends</h3>
-        <p className="text-gray-600 text-sm mb-4">
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8 dark:bg-gray-800">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Daily Query Trends</h3>
+        <p className="text-gray-600 text-sm mb-4 dark:text-gray-300">
           Visualize the daily volume of DNS queries (Total in blue, Blocked in red) within your selected date range.
         </p>
         <div className="flex items-center space-x-4 mb-4 text-sm font-medium">
-            <div className="flex items-center">
-                <span className="inline-block w-4 h-4 bg-blue-500 rounded-full mr-2"></span>
+            <div className="flex items-center text-gray-700 dark:text-gray-200">
+                <span className="inline-block w-4 h-4 bg-blue-500 rounded-full mr-2 dark:bg-blue-600"></span>
                 <span>Total Queries</span>
             </div>
-            <div className="flex items-center">
-                <span className="inline-block w-4 h-4 bg-red-500 rounded-full mr-2"></span>
+            <div className="flex items-center text-gray-700 dark:text-gray-200">
+                <span className="inline-block w-4 h-4 bg-red-500 rounded-full mr-2 dark:bg-red-600"></span>
                 <span>Blocked Queries</span>
             </div>
         </div>
-        <div className="max-h-80 overflow-y-auto border border-gray-200 rounded-md p-3">
+        <div className="max-h-80 overflow-y-auto border border-gray-200 rounded-md p-3 dark:border-gray-700">
           {sortedDailyTrends.length > 0 ? (
             <div className="space-y-4">
               {sortedDailyTrends.map(([date, data]) => (
-                <div key={date} className="pb-2 border-b border-gray-100 last:border-b-0">
-                  <p className="text-sm font-medium text-gray-800 mb-1">{date}</p>
+                <div key={date} className="pb-2 border-b border-gray-100 last:border-b-0 dark:border-gray-700">
+                  <p className="text-sm font-medium text-gray-800 mb-1 dark:text-gray-100">{date}</p>
                   <div className="flex items-center mb-1">
-                    <span className="w-16 text-xs text-gray-700">Total:</span>
-                    <div className="flex-1 bg-blue-100 rounded-full h-4 relative">
+                    <span className="w-16 text-xs text-gray-700 dark:text-gray-200">Total:</span>
+                    <div className="flex-1 bg-blue-100 rounded-full h-4 relative dark:bg-blue-900">
                       <div
-                        className="bg-blue-500 h-full rounded-full flex items-center justify-end pr-1"
+                        className="bg-blue-500 h-full rounded-full flex items-center justify-end pr-1 dark:bg-blue-600"
                         style={{ width: `${(data.total / maxDailyQueries) * 100}%` }}
                         role="progressbar"
                         aria-valuenow={data.total}
@@ -330,10 +332,10 @@ const LogsAnalyticsPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <span className="w-16 text-xs text-gray-700">Blocked:</span>
-                    <div className="flex-1 bg-red-100 rounded-full h-4 relative">
+                    <span className="w-16 text-xs text-gray-700 dark:text-gray-200">Blocked:</span>
+                    <div className="flex-1 bg-red-100 rounded-full h-4 relative dark:bg-red-900">
                       <div
-                        className="bg-red-500 h-full rounded-full flex items-center justify-end pr-1"
+                        className="bg-red-500 h-full rounded-full flex items-center justify-end pr-1 dark:bg-red-600"
                         style={{ width: `${(data.blocked / maxDailyQueries) * 100}%` }}
                         role="progressbar"
                         aria-valuenow={data.blocked}
@@ -349,45 +351,45 @@ const LogsAnalyticsPage: React.FC = () => {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-10">No daily query data for the selected period.</p>
+            <p className="text-gray-500 text-center py-10 dark:text-gray-400">No daily query data for the selected period.</p>
           )}
         </div>
       </div>
 
       {/* DNS Query Log Feed */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Live Query Feed (Most Recent First)</h3>
-        <div className="max-h-[600px] overflow-y-auto border border-gray-200 rounded-md p-3 space-y-3">
+      <div className="bg-white p-6 rounded-lg shadow-md dark:bg-gray-800">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Live Query Feed (Most Recent First)</h3>
+        <div className="max-h-[600px] overflow-y-auto border border-gray-200 rounded-md p-3 space-y-3 dark:border-gray-700">
           {filteredLogs.length === 0 ? (
-            <p className="text-gray-500 text-center py-10">No DNS queries logged yet for the selected filters.</p>
+            <p className="text-gray-500 text-center py-10 dark:text-gray-400">No DNS queries logged yet for the selected filters.</p>
           ) : (
             filteredLogs.map((log) => (
               <div
                 key={log.id}
                 className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-md
-                  ${log.status === 'blocked' ? 'bg-red-50 ring-1 ring-red-200' : 'bg-green-50 ring-1 ring-green-200'}
+                  ${log.status === 'blocked' ? 'bg-red-50 ring-1 ring-red-200 dark:bg-red-900 dark:ring-red-700' : 'bg-green-50 ring-1 ring-green-200 dark:bg-green-900 dark:ring-green-700'}
                 `}
               >
                 <div className="flex-1 min-w-0 mr-4">
-                  <p className="text-sm font-semibold text-gray-800 truncate">{log.domain}</p>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-sm font-semibold text-gray-800 truncate dark:text-gray-100">{log.domain}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">
                     <span className="font-medium">{log.device}</span> / <span className="italic">{log.profile}</span>
                   </p>
                 </div>
                 <div className="flex-shrink-0 text-right sm:text-left">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                      ${log.status === 'blocked' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}
+                      ${log.status === 'blocked' ? 'bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100' : 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100'}
                     `}
                   >
                     {log.status === 'blocked' ? 'BLOCKED' : 'ALLOWED'}
                   </span>
                   {log.blockReason && (
-                    <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100">
                       Reason: {log.blockReason}
                     </span>
                   )}
-                  <p className="text-xs text-gray-500 mt-1 sm:mt-0">
+                  <p className="text-xs text-gray-500 mt-1 sm:mt-0 dark:text-gray-400">
                     {new Date(log.timestamp).toLocaleString()}
                   </p>
                 </div>

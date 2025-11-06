@@ -91,3 +91,5 @@ export interface FeatureToggleProps {
 export interface FeatureCardProps extends FeatureToggleProps {
   // Can extend for other input types if needed, for now just toggle
 }
+
+export type Theme = 'light' | 'dark'; // New type for theme

@@ -3,6 +3,7 @@ import FeatureCard from '../components/FeatureCard';
 import Input from '../components/Input';
 import { nextDNSService } from '../services/nextdnsService';
 import { NextDNSSettings } from '../types';
+import { useTheme } from '../contexts/ThemeContext'; // Import useTheme hook
 
 const SettingsPage: React.FC = () => {
   const [settings, setSettings] = useState<NextDNSSettings['general']>({
@@ -13,6 +14,7 @@ const SettingsPage: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { theme } = useTheme(); // Use theme context
 
   const fetchSettings = useCallback(async () => {
     try {
@@ -67,9 +69,9 @@ const SettingsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full text-gray-700">
+      <div className="flex justify-center items-center h-full text-gray-700 dark:text-gray-300">
         <div className="flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
           <span>Loading General Settings...</span>
         </div>
       </div>
@@ -77,12 +79,12 @@ const SettingsPage: React.FC = () => {
   }
 
   if (error) {
-    return <div className="p-6 text-red-600 text-center">{error}</div>;
+    return <div className="p-6 text-red-600 text-center dark:text-red-400">{error}</div>;
   }
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">General Settings</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 dark:text-gray-100">General Settings</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <FeatureCard
           id="loggingEnabled"
@@ -107,9 +109,9 @@ const SettingsPage: React.FC = () => {
         />
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md mt-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Custom Block Page URL</h3>
-        <p className="text-gray-600 mb-4">
+      <div className="bg-white p-6 rounded-lg shadow-md mt-8 dark:bg-gray-800">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Custom Block Page URL</h3>
+        <p className="text-gray-600 mb-4 dark:text-gray-300">
           Specify a URL to redirect users to when a domain is blocked.
           This setting only applies if 'Block Page' is enabled.
         </p>
@@ -120,7 +122,7 @@ const SettingsPage: React.FC = () => {
           value={settings.blockPageUrl}
           onChange={handleBlockPageUrlChange}
           disabled={!settings.blockPageEnabled}
-          className={`${!settings.blockPageEnabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+          className={`${!settings.blockPageEnabled ? 'bg-gray-100 dark:bg-gray-600 cursor-not-allowed' : ''}`}
         />
       </div>
     </div>

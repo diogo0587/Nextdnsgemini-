@@ -18,6 +18,7 @@ import { NavItem } from './types';
 import { nextDNSService } from './services/nextdnsService';
 import { logService } from './services/logService'; // Import logService
 import { NotificationProvider, useNotification } from './contexts/NotificationContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext'; // Import ThemeProvider and useTheme
 
 // Helper component to pass navigation props to children
 const PageWrapper: React.FC<{ children: React.ReactNode, navItems: NavItem[] }> = ({ children, navItems }) => {
@@ -28,11 +29,21 @@ const PageWrapper: React.FC<{ children: React.ReactNode, navItems: NavItem[] }> 
   // Initialize activePath with the pathname from HashRouter, defaulting to '/'
   const [activePath, setActivePath] = useState(location.pathname || '/');
   const { addNotification } = useNotification();
+  const { theme } = useTheme(); // Use theme context to update body class
 
   useEffect(() => {
     // Update activePath when the location.pathname changes (after the hash)
     setActivePath(location.pathname || '/');
   }, [location.pathname]);
+
+  // Apply theme class to document.documentElement
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   // Set the notification handler for the service
   useEffect(() => {
@@ -53,7 +64,7 @@ const PageWrapper: React.FC<{ children: React.ReactNode, navItems: NavItem[] }> 
   const pageTitle = currentNavItem ? currentNavItem.label : 'NextDNS Manager';
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar navItems={navItems} activePath={activePath} onNavigate={handleNavigate} />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header title={pageTitle} />
@@ -71,25 +82,27 @@ const App: React.FC = () => {
     // Fix: Use ReactRouter.HashRouter instead of Router
     <ReactRouter.HashRouter>
       <NotificationProvider>
-        <PageWrapper navItems={NAV_ITEMS}>
-          {/* Fix: Use ReactRouter.Routes instead of Routes */}
-          <ReactRouter.Routes>
-            {/* Fix: Use ReactRouter.Route instead of Route */}
-            <ReactRouter.Route path="/" element={<DashboardPage />} />
-            <ReactRouter.Route path="/dashboard" element={<DashboardPage />} />
-            <ReactRouter.Route path="/security" element={<SecurityPage />} />
-            <ReactRouter.Route path="/privacy" element={<PrivacyPage />} />
-            <ReactRouter.Route path="/parental-controls" element={<ParentalControlsPage />} />
-            <ReactRouter.Route path="/lists" element={<ListsPage />} />
-            <ReactRouter.Route path="/rewrites" element={<RewritesPage />} />
-            <ReactRouter.Route path="/settings" element={<SettingsPage />} />
-            <ReactRouter.Route path="/logs-analytics" element={<LogsAnalyticsPage />} />
-            <ReactRouter.Route path="/gemini-assistant" element={<GeminiAssistantPage />} />
-            <ReactRouter.Route path="/api-key" element={<ApiKeyPage />} /> {/* New API Key Route */}
-            {/* Fallback for unknown routes */}
-            <ReactRouter.Route path="*" element={<DashboardPage />} />
-          </ReactRouter.Routes>
-        </PageWrapper>
+        <ThemeProvider> {/* Wrap with ThemeProvider */}
+          <PageWrapper navItems={NAV_ITEMS}>
+            {/* Fix: Use ReactRouter.Routes instead of Routes */}
+            <ReactRouter.Routes>
+              {/* Fix: Use ReactRouter.Route instead of Route */}
+              <ReactRouter.Route path="/" element={<DashboardPage />} />
+              <ReactRouter.Route path="/dashboard" element={<DashboardPage />} />
+              <ReactRouter.Route path="/security" element={<SecurityPage />} />
+              <ReactRouter.Route path="/privacy" element={<PrivacyPage />} />
+              <ReactRouter.Route path="/parental-controls" element={<ParentalControlsPage />} />
+              <ReactRouter.Route path="/lists" element={<ListsPage />} />
+              <ReactRouter.Route path="/rewrites" element={<RewritesPage />} />
+              <ReactRouter.Route path="/settings" element={<SettingsPage />} />
+              <ReactRouter.Route path="/logs-analytics" element={<LogsAnalyticsPage />} />
+              <ReactRouter.Route path="/gemini-assistant" element={<GeminiAssistantPage />} />
+              <ReactRouter.Route path="/api-key" element={<ApiKeyPage />} /> {/* New API Key Route */}
+              {/* Fallback for unknown routes */}
+              <ReactRouter.Route path="*" element={<DashboardPage />} />
+            </ReactRouter.Routes>
+          </PageWrapper>
+        </ThemeProvider>
       </NotificationProvider>
     </ReactRouter.HashRouter>
   );

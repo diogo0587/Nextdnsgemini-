@@ -1,55 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Input from '../components/Input';
 import Button from '../components/Button';
-import { geminiService } from '../services/geminiService';
 import { nextDNSService } from '../services/nextdnsService'; // Import NextDNS service
 import { useNotification } from '../contexts/NotificationContext';
+import { useTheme } from '../contexts/ThemeContext'; // Import useTheme hook
 
 const ApiKeyPage: React.FC = () => {
-  const [currentGeminiApiKey, setCurrentGeminiApiKey] = useState<string>('');
-  const [inputGeminiApiKey, setInputGeminiApiKey] = useState<string>('');
+  // Gemini API Key management is removed as per Google GenAI guidelines.
+  // The Gemini API key must be provided via `process.env.API_KEY`.
+  
   const [currentNextDnsApiKey, setCurrentNextDnsApiKey] = useState<string>(''); // New state for NextDNS API Key
   const [inputNextDnsApiKey, setInputNextDnsApiKey] = useState<string>(''); // New state for NextDNS API Key input
   const { addNotification } = useNotification();
+  const { theme } = useTheme(); // Use theme context
 
   useEffect(() => {
-    // Load existing API keys from services on component mount
-    const geminiKey = geminiService.getApiKeyFromStorage();
-    if (geminiKey) {
-      setCurrentGeminiApiKey(geminiKey);
-      setInputGeminiApiKey(geminiKey);
-    }
-
+    // Load existing NextDNS API key from service on component mount
     const nextDnsKey = nextDNSService.getNextDnsApiKeyFromStorage();
     if (nextDnsKey) {
       setCurrentNextDnsApiKey(nextDnsKey);
       setInputNextDnsApiKey(nextDnsKey);
     }
   }, []);
-
-  const handleSaveGeminiApiKey = useCallback(() => {
-    const trimmedKey = inputGeminiApiKey.trim();
-    if (trimmedKey) {
-      geminiService.setApiKey(trimmedKey);
-      setCurrentGeminiApiKey(trimmedKey);
-      addNotification('Gemini API Key saved successfully!', 'success');
-      // Dispatch a storage event to notify other components (e.g., GeminiAssistantPage)
-      window.dispatchEvent(new Event('storage'));
-    } else {
-      addNotification('Gemini API Key cannot be empty.', 'warning');
-    }
-  }, [inputGeminiApiKey, addNotification]);
-
-  const handleClearGeminiApiKey = useCallback(() => {
-    if (window.confirm('Are you sure you want to clear your Gemini API Key? You will not be able to use the AI Assistant without it.')) {
-      geminiService.clearApiKey();
-      setCurrentGeminiApiKey('');
-      setInputGeminiApiKey('');
-      addNotification('Gemini API Key cleared.', 'info');
-      // Dispatch a storage event to notify other components (e.g., GeminiAssistantPage)
-      window.dispatchEvent(new Event('storage'));
-    }
-  }, [addNotification]);
 
   const handleSaveNextDnsApiKey = useCallback(() => {
     const trimmedKey = inputNextDnsApiKey.trim();
@@ -77,63 +49,32 @@ const ApiKeyPage: React.FC = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">API Key Settings</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 dark:text-gray-100">API Key Settings</h2>
 
-      {/* Gemini API Key Section */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Google Gemini API Key</h3>
-        <p className="text-gray-700 mb-4">
-          To use the Gemini AI Assistant, please provide your Google Gemini API Key.
-          This key is stored securely in your browser's local storage.
+      {/* Gemini API Key Section (Information Only - Managed Externally) */}
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8 dark:bg-gray-800">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Google Gemini API Key</h3>
+        <p className="text-gray-700 mb-4 dark:text-gray-300">
+          As per Google GenAI SDK guidelines, the Gemini API Key must be provided exclusively via an environment variable named <code className="font-mono bg-gray-100 dark:bg-gray-700 p-1 rounded">process.env.API_KEY</code>.
+          Therefore, it cannot be configured directly within this application's user interface.
         </p>
-        <p className="text-gray-600 mb-4 text-sm">
-          You can obtain your API key from the <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Google AI Studio website</a>.
-          Usage may incur costs, refer to the <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">billing documentation</a>.
+        <p className="text-gray-600 mb-4 text-sm dark:text-gray-400">
+          Please ensure your environment is configured with the <code className="font-mono bg-gray-100 dark:bg-gray-700 p-1 rounded">API_KEY</code> environment variable before running the application for Gemini AI functionality.
+          Usage may incur costs; refer to the <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300">Google AI Studio billing documentation</a>.
         </p>
-
-        <div className="mb-4">
-          <Input
-            id="gemini-api-key"
-            label="Gemini API Key"
-            type="password"
-            placeholder="Enter your Gemini API Key here"
-            value={inputGeminiApiKey}
-            onChange={(e) => setInputGeminiApiKey(e.target.value)}
-            className="w-full"
-          />
-        </div>
-
-        <div className="flex space-x-3">
-          <Button onClick={handleSaveGeminiApiKey} disabled={!inputGeminiApiKey.trim()}>
-            {currentGeminiApiKey === inputGeminiApiKey.trim() ? 'Key Saved' : 'Save Gemini API Key'}
-          </Button>
-          {currentGeminiApiKey && (
-            <Button variant="danger" onClick={handleClearGeminiApiKey}>
-              Clear Gemini API Key
-            </Button>
-          )}
-        </div>
-
-        {currentGeminiApiKey && (
-          <p className="mt-4 text-sm text-green-600">
-            Gemini API Key is currently configured.
-          </p>
-        )}
-        {!currentGeminiApiKey && (
-          <p className="mt-4 text-sm text-red-600">
-            Gemini API Key is not configured. Gemini AI Assistant will not function.
-          </p>
-        )}
+        <p className="mt-4 text-sm text-blue-600 dark:text-blue-400">
+          The Gemini AI Assistant will attempt to use the key provided in the environment.
+        </p>
       </div>
 
       {/* NextDNS API Key Section */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">NextDNS API Key (Future Integration)</h3>
-        <p className="text-gray-700 mb-4">
+      <div className="bg-white p-6 rounded-lg shadow-md dark:bg-gray-800">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">NextDNS API Key (Future Integration)</h3>
+        <p className="text-gray-700 mb-4 dark:text-gray-300">
           This field is for a future integration with the actual NextDNS API.
           Currently, the application manages NextDNS settings and logs locally in your browser.
         </p>
-        <p className="text-gray-600 mb-4 text-sm">
+        <p className="text-gray-600 mb-4 text-sm dark:text-gray-400">
           In a future version, an API Key from NextDNS could allow direct management
           of your NextDNS profile settings and retrieval of real-time logs.
           (You would typically find this in your NextDNS dashboard settings once available).
@@ -163,12 +104,12 @@ const ApiKeyPage: React.FC = () => {
         </div>
 
         {currentNextDnsApiKey && (
-          <p className="mt-4 text-sm text-green-600">
+          <p className="mt-4 text-sm text-green-600 dark:text-green-400">
             NextDNS API Key is currently configured (for future use).
           </p>
         )}
         {!currentNextDnsApiKey && (
-          <p className="mt-4 text-sm text-gray-600">
+          <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
             NextDNS API Key is not configured. This is fine for current local functionality.
           </p>
         )}

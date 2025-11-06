@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import FeatureCard from '../components/FeatureCard';
 import { nextDNSService } from '../services/nextdnsService';
 import { NextDNSSettings } from '../types';
+import { useTheme } from '../contexts/ThemeContext'; // Import useTheme hook
 
 const SecurityPage: React.FC = () => {
   const [settings, setSettings] = useState<NextDNSSettings['security']>({
@@ -15,6 +16,7 @@ const SecurityPage: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { theme } = useTheme(); // Use theme context
 
   const fetchSettings = useCallback(async () => {
     try {
@@ -55,9 +57,9 @@ const SecurityPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full text-gray-700">
+      <div className="flex justify-center items-center h-full text-gray-700 dark:text-gray-300">
         <div className="flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
           <span>Loading Security Settings...</span>
         </div>
       </div>
@@ -65,12 +67,12 @@ const SecurityPage: React.FC = () => {
   }
 
   if (error) {
-    return <div className="p-6 text-red-600 text-center">{error}</div>;
+    return <div className="p-6 text-red-600 text-center dark:text-red-400">{error}</div>;
   }
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Security Settings</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 dark:text-gray-100">Security Settings</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <FeatureCard
           id="threatIntelligence"

@@ -3,6 +3,7 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import { nextDNSService } from '../services/nextdnsService';
 import { NextDNSSettings } from '../types';
+import { useTheme } from '../contexts/ThemeContext'; // Import useTheme hook
 
 const RewritesPage: React.FC = () => {
   const [settings, setSettings] = useState<NextDNSSettings['rewrites']>({});
@@ -10,6 +11,7 @@ const RewritesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [newRewriteDomain, setNewRewriteDomain] = useState('');
   const [newRewriteIp, setNewRewriteIp] = useState('');
+  const { theme } = useTheme(); // Use theme context
 
   const fetchSettings = useCallback(async () => {
     try {
@@ -69,9 +71,9 @@ const RewritesPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full text-gray-700">
+      <div className="flex justify-center items-center h-full text-gray-700 dark:text-gray-300">
         <div className="flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
           <span>Loading Rewrite Rules...</span>
         </div>
       </div>
@@ -79,16 +81,16 @@ const RewritesPage: React.FC = () => {
   }
 
   if (error) {
-    return <div className="p-6 text-red-600 text-center">{error}</div>;
+    return <div className="p-6 text-red-600 text-center dark:text-red-400">{error}</div>;
   }
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">DNS Rewrites</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 dark:text-gray-100">DNS Rewrites</h2>
 
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Add New Rewrite Rule</h3>
-        <p className="text-gray-600 mb-4">Map a domain to a specific IP address on your network.</p>
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8 dark:bg-gray-800">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Add New Rewrite Rule</h3>
+        <p className="text-gray-600 mb-4 dark:text-gray-300">Map a domain to a specific IP address on your network.</p>
         <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mb-4">
           <div className="flex-1">
             <Input
@@ -114,14 +116,14 @@ const RewritesPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Existing Rewrite Rules</h3>
+      <div className="bg-white p-6 rounded-lg shadow-md dark:bg-gray-800">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Existing Rewrite Rules</h3>
         <ul className="list-inside space-y-2 max-h-96 overflow-y-auto pr-2">
           {Object.keys(settings).length === 0 ? (
-            <li className="text-gray-500">No rewrite rules configured.</li>
+            <li className="text-gray-500 dark:text-gray-400">No rewrite rules configured.</li>
           ) : (
             Object.entries(settings).map(([domain, ip]) => (
-              <li key={domain} className="flex items-center justify-between text-gray-800 bg-gray-50 p-2 rounded-md">
+              <li key={domain} className="flex items-center justify-between text-gray-800 bg-gray-50 p-2 rounded-md dark:text-gray-100 dark:bg-gray-700">
                 <span>
                   <strong>{domain}</strong> &rarr; {ip}
                 </span>

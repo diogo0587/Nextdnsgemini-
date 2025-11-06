@@ -4,6 +4,7 @@ import Button from '../components/Button';
 import { nextDNSService } from '../services/nextdnsService';
 import { NextDNSSettings } from '../types';
 import ToggleSwitch from '../components/ToggleSwitch'; // Added missing import
+import { useTheme } from '../contexts/ThemeContext'; // Import useTheme hook
 
 const CATEGORIES = [
   'Social Networks', 'Gambling', 'Pornography', 'Streaming', 'Games', 'File Sharing',
@@ -18,6 +19,7 @@ const ParentalControlsPage: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { theme } = useTheme(); // Use theme context
 
   const fetchSettings = useCallback(async () => {
     try {
@@ -82,9 +84,9 @@ const ParentalControlsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full text-gray-700">
+      <div className="flex justify-center items-center h-full text-gray-700 dark:text-gray-300">
         <div className="flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
           <span>Loading Parental Control Settings...</span>
         </div>
       </div>
@@ -92,12 +94,12 @@ const ParentalControlsPage: React.FC = () => {
   }
 
   if (error) {
-    return <div className="p-6 text-red-600 text-center">{error}</div>;
+    return <div className="p-6 text-red-600 text-center dark:text-red-400">{error}</div>;
   }
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Parental Controls</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 dark:text-gray-100">Parental Controls</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
         <FeatureCard
@@ -116,12 +118,12 @@ const ParentalControlsPage: React.FC = () => {
         />
       </div>
 
-      <h3 className="text-xl font-semibold text-gray-800 mb-4">Block Categories</h3>
-      <p className="text-gray-600 mb-4">Select categories of websites to block across your network.</p>
+      <h3 className="text-xl font-semibold text-gray-800 mb-4 dark:text-gray-100">Block Categories</h3>
+      <p className="text-gray-600 mb-4 dark:text-gray-300">Select categories of websites to block across your network.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {CATEGORIES.map((category) => (
-          <div key={category} className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
-            <span className="font-medium text-gray-900">{category}</span>
+          <div key={category} className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between dark:bg-gray-800">
+            <span className="font-medium text-gray-900 dark:text-gray-100">{category}</span>
             <ToggleSwitch
               id={`category-${category.replace(/\s/g, '-')}`}
               checked={settings.blockCategories.includes(category)}

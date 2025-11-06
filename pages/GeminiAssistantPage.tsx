@@ -3,6 +3,7 @@ import { geminiService } from '../services/geminiService';
 import { GeminiMessage } from '../types';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import { useTheme } from '../contexts/ThemeContext'; // Import useTheme hook
 
 const systemInstruction = `You are a helpful AI assistant specialized in NextDNS configuration and troubleshooting. Provide concise, accurate, and actionable advice based on NextDNS features. When asked about settings, assume the user is asking about the options available in a NextDNS management panel. Do not mention external APIs unless explicitly asked to. Do not provide information outside the scope of NextDNS.`;
 
@@ -11,8 +12,9 @@ const GeminiAssistantPage: React.FC = () => {
   const [currentMessage, setCurrentMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [isApiKeyConfigured, setIsApiKeyConfigured] = useState<boolean>(false); // New state for API Key
+  // isApiKeyConfigured state removed as Gemini API Key is now expected from environment variables.
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme(); // Use theme context
 
   const scrollToBottom = useCallback(() => {
     if (chatContainerRef.current) {
@@ -21,32 +23,13 @@ const GeminiAssistantPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Check API Key status on mount
-    const checkApiKey = () => {
-      const key = geminiService.getApiKeyFromStorage();
-      setIsApiKeyConfigured(!!key);
-      if (!key) {
-        setApiError("Gemini API Key is not configured. Please go to API Key Settings to set it.");
-      } else {
-        setApiError(null);
-      }
-    };
-    checkApiKey();
-
-    // Re-check if API key might change (e.g., user saves on another page)
-    const handleStorageChange = () => checkApiKey();
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []); // Run once on mount, then listen to storage events
-
-
-  useEffect(() => {
     scrollToBottom();
   }, [chatHistory, scrollToBottom]);
 
   const handleSendMessage = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!currentMessage.trim() || isLoading || !isApiKeyConfigured) return;
+    // Removed isApiKeyConfigured check, as API key is now assumed from environment.
+    if (!currentMessage.trim() || isLoading) return; 
 
     const userMessage: GeminiMessage = { role: 'user', content: currentMessage };
     setChatHistory((prev) => [...prev, userMessage]);
@@ -87,24 +70,23 @@ const GeminiAssistantPage: React.FC = () => {
           });
         }
       );
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error during Gemini interaction:', err);
-      // Specific error handling for API Key not configured
-      if ((err as Error).message.includes("API Key is not configured")) {
-        setApiError((err as Error).message);
-        setIsApiKeyConfigured(false); // Update state to reflect missing key
+      // Specific error handling for API Key not configured (now from environment)
+      if (err.message.includes("API Key is not configured") || err.message.includes("api_key")) {
+        setApiError("Gemini API Key is not configured in the environment. Please ensure process.env.API_KEY is set.");
       } else {
-        setApiError('An unexpected error occurred while contacting Gemini.');
+        setApiError(`An unexpected error occurred while contacting Gemini: ${err.message || 'Unknown error'}`);
       }
     } finally {
       setIsLoading(false);
     }
-  }, [currentMessage, isLoading, isApiKeyConfigured, chatHistory]);
+  }, [currentMessage, isLoading, chatHistory]); // Removed isApiKeyConfigured from dependencies
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
-      <h2 className="text-2xl font-bold text-gray-800 p-6 pb-0">Gemini AI Assistant</h2>
-      <p className="text-gray-600 p-6 pt-2 pb-4 border-b border-gray-200">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
+      <h2 className="text-2xl font-bold text-gray-800 p-6 pb-0 dark:text-gray-100">Gemini AI Assistant</h2>
+      <p className="text-gray-600 p-6 pt-2 pb-4 border-b border-gray-200 dark:text-gray-300 dark:border-gray-700">
         Ask Gemini anything about NextDNS features, settings, or best practices.
       </p>
 
@@ -115,7 +97,7 @@ const GeminiAssistantPage: React.FC = () => {
         style={{ scrollBehavior: 'smooth' }}
       >
         {chatHistory.length === 0 && !apiError && (
-          <div className="text-center text-gray-500 py-10">
+          <div className="text-center text-gray-500 py-10 dark:text-gray-400">
             Start a conversation! Ask me about NextDNS.
           </div>
         )}
@@ -127,8 +109,8 @@ const GeminiAssistantPage: React.FC = () => {
             <div
               className={`max-w-xl p-3 rounded-lg shadow-sm ${
                 msg.role === 'user'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-800'
+                  ? 'bg-blue-500 text-white dark:bg-blue-700'
+                  : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
               }`}
             >
               {msg.content.split('\n').map((line, lineIndex) => (
@@ -139,20 +121,20 @@ const GeminiAssistantPage: React.FC = () => {
         ))}
         {isLoading && chatHistory.length > 0 && chatHistory[chatHistory.length - 1]?.role === 'model' && chatHistory[chatHistory.length - 1]?.content === '' && (
           <div className="flex justify-start">
-            <div className="max-w-xl p-3 rounded-lg shadow-sm bg-gray-200 text-gray-800">
+            <div className="max-w-xl p-3 rounded-lg shadow-sm bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100">
               <div className="flex items-center space-x-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 dark:border-blue-400"></div>
                 <span>Thinking...</span>
               </div>
             </div>
           </div>
         )}
         {apiError && (
-          <div className="p-4 bg-red-100 text-red-700 border border-red-400 rounded-md text-sm">
+          <div className="p-4 bg-red-100 text-red-700 border border-red-400 rounded-md text-sm dark:bg-red-900 dark:text-red-300 dark:border-red-700">
             <strong>Error:</strong> {apiError}
-            {!isApiKeyConfigured && (
+            {apiError.includes("API Key is not configured") && (
               <p className="mt-2">
-                Please go to <a href="#/api-key" className="underline text-blue-700 hover:text-blue-900">API Key Settings</a> to configure your Gemini API Key.
+                Please ensure your <code className="font-mono bg-red-200 dark:bg-red-800 p-1 rounded">process.env.API_KEY</code> environment variable is correctly set.
               </p>
             )}
           </div>
@@ -160,7 +142,7 @@ const GeminiAssistantPage: React.FC = () => {
       </div>
 
       {/* Message Input */}
-      <form onSubmit={handleSendMessage} className="p-6 bg-white border-t border-gray-200 sticky bottom-0">
+      <form onSubmit={handleSendMessage} className="p-6 bg-white border-t border-gray-200 sticky bottom-0 dark:bg-gray-800 dark:border-gray-700">
         <div className="flex space-x-3">
           <Input
             id="chat-input"
@@ -168,9 +150,9 @@ const GeminiAssistantPage: React.FC = () => {
             value={currentMessage}
             onChange={(e) => setCurrentMessage(e.target.value)}
             className="flex-1"
-            disabled={isLoading || !isApiKeyConfigured} // Disable if no API key
+            disabled={isLoading}
           />
-          <Button type="submit" disabled={!currentMessage.trim() || isLoading || !isApiKeyConfigured}>
+          <Button type="submit" disabled={!currentMessage.trim() || isLoading}>
             {isLoading ? 'Sending...' : 'Send'}
           </Button>
         </div>
