@@ -12,6 +12,9 @@ const LogsAnalyticsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const [deviceFilter, setDeviceFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [profileFilter, setProfileFilter] = useState<string>('');
   const { addNotification } = useNotification();
   const { theme } = useTheme(); // Use theme context
 
@@ -39,23 +42,41 @@ const LogsAnalyticsPage: React.FC = () => {
     fetchLogs();
   }, [fetchLogs]);
 
+  const filterOptions = useMemo(() => {
+    const devices = new Set<string>();
+    const profiles = new Set<string>();
+
+    allLogs.forEach(log => {
+        devices.add(log.device);
+        profiles.add(log.profile);
+    });
+
+    return {
+        devices: Array.from(devices).sort(),
+        profiles: Array.from(profiles).sort(),
+    };
+  }, [allLogs]);
+
   const filteredLogs = useMemo(() => {
-    let logsToFilter = [...allLogs];
+    return allLogs.filter(log => {
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0); // Start of the day
+        if (new Date(log.timestamp) < start) return false;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // End of the day
+        if (new Date(log.timestamp) > end) return false;
+      }
+      if (deviceFilter && log.device !== deviceFilter) return false;
+      if (statusFilter && log.status !== statusFilter) return false;
+      if (profileFilter && log.profile !== profileFilter) return false;
+      
+      return true;
+    });
+  }, [allLogs, startDate, endDate, deviceFilter, statusFilter, profileFilter]);
 
-    if (startDate) {
-      const start = new Date(startDate);
-      start.setHours(0, 0, 0, 0); // Start of the day
-      logsToFilter = logsToFilter.filter(log => new Date(log.timestamp) >= start);
-    }
-
-    if (endDate) {
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999); // End of the day
-      logsToFilter = logsToFilter.filter(log => new Date(log.timestamp) <= end);
-    }
-
-    return logsToFilter;
-  }, [allLogs, startDate, endDate]);
 
   const handleClearLogs = useCallback(async () => {
     if (window.confirm('Are you sure you want to clear all DNS query logs? This action cannot be undone.')) {
@@ -164,7 +185,10 @@ const LogsAnalyticsPage: React.FC = () => {
   const handleResetFilters = useCallback(() => {
     setStartDate('');
     setEndDate('');
-    addNotification('Date filters reset.', 'info');
+    setDeviceFilter('');
+    setStatusFilter('');
+    setProfileFilter('');
+    addNotification('All filters reset.', 'info');
   }, [addNotification]);
 
   if (loading) {
@@ -191,11 +215,12 @@ const LogsAnalyticsPage: React.FC = () => {
     <div className="p-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-6 dark:text-gray-100">DNS Query Logs & Analytics</h2>
 
-      {/* Date Range Filter */}
+      {/* Filter Options */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-8 dark:bg-gray-800">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Filter Logs by Date</h3>
-        <div className="flex flex-col sm:flex-row gap-4 items-end">
-          <div className="flex-1 w-full">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Filter Options</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+          {/* Date filters */}
+          <div>
             <Input
               id="startDate"
               label="Start Date"
@@ -204,7 +229,7 @@ const LogsAnalyticsPage: React.FC = () => {
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
-          <div className="flex-1 w-full">
+          <div>
             <Input
               id="endDate"
               label="End Date"
@@ -213,10 +238,34 @@ const LogsAnalyticsPage: React.FC = () => {
               onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
-          <Button onClick={handleResetFilters} variant="secondary" className="w-full sm:w-auto mt-2 sm:mt-0">
-            Reset Filters
-          </Button>
+
+          {/* New filters */}
+          <div>
+            <label htmlFor="deviceFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Device</label>
+            <select id="deviceFilter" name="deviceFilter" value={deviceFilter} onChange={e => setDeviceFilter(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:ring-blue-400 dark:focus:border-blue-400">
+                <option value="">All Devices</option>
+                {filterOptions.devices.map(device => <option key={device} value={device}>{device}</option>)}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="statusFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+            <select id="statusFilter" name="statusFilter" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:ring-blue-400 dark:focus:border-blue-400">
+                <option value="">All Statuses</option>
+                <option value="allowed">Allowed</option>
+                <option value="blocked">Blocked</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="profileFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Profile</label>
+            <select id="profileFilter" name="profileFilter" value={profileFilter} onChange={e => setProfileFilter(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:ring-blue-400 dark:focus:border-blue-400">
+                <option value="">All Profiles</option>
+                {filterOptions.profiles.map(profile => <option key={profile} value={profile}>{profile}</option>)}
+            </select>
+          </div>
         </div>
+        <Button onClick={handleResetFilters} variant="secondary">
+          Reset Filters
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
