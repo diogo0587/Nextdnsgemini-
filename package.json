@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "A comprehensive web application to manage NextDNS configurations, enhanced with Gemini AI assistance for explanations and recommendations.",
   "main": "index.js",
-  "homepage": "https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME",
   "scripts": {
     "build": "rm -rf dist && mkdir dist && esbuild --bundle index.tsx --outfile=dist/bundle.js --loader:.tsx=tsx --minify --sourcemap --platform=browser --define:process.env.NODE_ENV=\\\"production\\\" --define:process.env.API_KEY=\\\"${process.env.API_KEY || ''}\\\" && cp index.html dist/index.html",
     "predeploy": "npm run build",
